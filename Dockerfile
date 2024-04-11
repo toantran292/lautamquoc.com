@@ -1,4 +1,4 @@
-FROM node:20-alpine as DEV
+FROM node:20-alpine as development
 
 WORKDIR /app
 
@@ -10,19 +10,19 @@ COPY . .
 
 CMD ["npm", "run", "dev"]
 
-FROM DEV as PROD
+FROM development as production
 
 RUN npm run build
 
 FROM nginx:alpine
 
-COPY --from=PROD /app/.nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=production /app/.nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /usr/share/nginx/html
 
 RUN rm -rf ./*
 
-COPY --from=PROD /app/dist .
+COPY --from=production /app/dist .
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
